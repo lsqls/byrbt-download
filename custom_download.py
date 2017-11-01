@@ -21,12 +21,13 @@ def get_torrent_list():
     pattern=re.compile(r'details.php\?id=(.*?)&')
     idlist=list(set(re.findall(pattern,str(table))))
     torrentlist = []
+    i=0
     for id in idlist:
-        torrentinfo=torrent_info.get_torrent_info(id)
+        torrentinfo=list(torrent_info.get_torrent_info(id))
         downloadedid=get_have_download_list()
         have_downloaded=id in downloadedid
         #(id,name, size, seeder, downloader, iffree)
-        if  torrentinfo[4]>=4 and torrentinfo[3]<=2 and torrentinfo[5] and (not have_downloaded):
+        if int(torrentinfo[4])>=4 and int(torrentinfo[3])<=2 and torrentinfo[5] and (not have_downloaded):
             torrentlist.append(torrentinfo)
             excsv.add(torrentinfo)
     return torrentlist
@@ -40,7 +41,8 @@ def download(torrentlist):
         downloadlink="http://bt.byr.cn/download.php?id="+str(id)
         torrent_file=respose.get_respose(downloadlink).content
         name=torrent[1]
-        torrent_path=path+'\\'+name
+        id=torrent[0]
+        torrent_path=path+'\\'+str(id)+".torrent"
         with open(torrent_path,'wb') as f:
             f.write(torrent_file)
             f.close()
